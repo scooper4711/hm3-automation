@@ -22,6 +22,10 @@ For those who have viewed my YouTube channel or looked at the
 this module implements those macros for you with no need for you
 to touch any Javascript or macros.
 
+:stop_sign: Please note: If you have followed my tutorial or otherwise
+installed the example macros, you should uninstall them. Otherwise
+you risk effects being applied twice and having very tired mages. :D
+
 # Installation
 
 Use FoundryVTT Add-on Module page to install this manifest:
