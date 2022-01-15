@@ -3,6 +3,7 @@
   "title": "HM3 Automation",
   "description": "Automates Shock, Stumble, and Fumble rolls and spell fatigue management for HM3",
   "version": "0.0.1",
+  "bugs": "https://github.com/scooper4711/hm3-automation/issues",
   "minimumCoreVersion": "0.7.9",
   "compatibleCoreVersion": "9",
   "author": "Stephen Cooper",
