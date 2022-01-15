@@ -1,12 +1,33 @@
 # HârnMaster 3 Automation for Foundry VTT
 
-This module adds automatic handling for when actors fail
- * Shock Rolls
- * Fumble Rolls
- * Stumble Rolls
+With this module installed, there is no need to remember to mark
+actors as defeated when they fail their shock rolls. This module
+will automatically mark the actor as defeated and put the dreaded
+skull icon over its token.
 
-And also will auto-increment fatigue for Actors that cast spells.
+Also, when an actor fails its stumble for fumble roll, an icon is
+added to the token in the upper left to remind the player that the
+actor's next action needs to be to recover from that mishap.
 
+Lastly, this module will automatically increment a Shek P'var's
+fatigue every time he or she casts a spell and doesn't get a
+critical success. On critical failures, the player or GM is reminded
+of an optional rule of rolling on a critical spell failure table.
+
+This is all done automatically with no need for preferences, settings
+or other customization.
+
+For those who have viewed my YouTube channel or looked at the
+[HarnMaster example macros page](https://github.com/toastygm/HarnMaster-3-FoundryVTT/wiki/Example-Macros), 
+this module implements those macros for you with no need for you
+to touch any Javascript or macros.
+
+# Installation
+
+Use FoundryVTT Add-on Module page to install this manifest:
+ [https://github.com/scooper4711/hm3-automation/releases/latest/download/module.json](https://github.com/scooper4711/hm3-automation/releases/latest/download/module.json)
+
+# Features
 ## Shock Failure Automation
 
 <img width=200 src="images/FailedShock.png" style="float:right;padding:5px"/>
@@ -64,7 +85,6 @@ added to the actor casting the spell.
 |CF|+1 fatigue |
 
 # Future plans
+
 * house rules for spell fatigue, e.g. low level spells don't cost fatigue
 * Fatigue that auto-expires 10 minutes after getting it
-
-
