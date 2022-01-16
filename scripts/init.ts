@@ -7,43 +7,47 @@
  * @param {HarnMasterItem} item The spell being cast
  */
 function onSpellRoll(actor, rollResult, rollData, item) {
-  console.debug("HM3 Automation | onSpellRoll")
-  console.debug("HM3 Automation | actor", actor)
-  console.debug("HM3 Automation | rollResult", rollResult)
-  console.debug("HM3 Automation | rollData", rollData)
-  console.debug("HM3 Automation | item", item)
-  let speaker = rollData.speaker
-  console.debug("HM3 Automation | speaker", speaker)
-  let fatigue = "0"
-  let result = ''
-  switch (rollResult.result) {
-    case 'CS':
-      fatigue = "0";
-      result = "Mage creates a perfect <em>Form</em> that costs no fatigue";
-      break;
-    case 'MS':
-      fatigue = "+1";
-      result = "Mage fine-tunes the <em>Form</em>, causing fatigue";
-      break;
-    case 'MF':
-      fatigue = "+1";
-      result = "Mage creates a <em>Form</em> but it is not suited for the spell. Aborting the spell costs fatigue";
-      break;
-    case 'CF':
-      fatigue = "+2";
-      result = "The <em>Principle</em> is summoned into a faulty <em>Form</em> which could not be repaired. <br/><i>Optionally roll on critical spell failure table.</i>";
-      break;
-    default:
-      fatigue = "0";
-      result = `Unknown roll result ${rollResult.result}`;
+  if (game instanceof Game) {
+    console.debug("HM3 Automation | onSpellRoll")
+    console.debug("HM3 Automation | actor", actor)
+    console.debug("HM3 Automation | rollResult", rollResult)
+    console.debug("HM3 Automation | rollData", rollData)
+    console.debug("HM3 Automation | item", item)
+    let speaker = rollData.speaker
+    console.debug("HM3 Automation | speaker", speaker)
+    let fatigue = "0"
+    let result = ''
+    switch (rollResult.result) {
+      case 'CS':
+        fatigue = "0";
+        result = "Mage creates a perfect <em>Form</em> that costs no fatigue";
+        break;
+      case 'MS':
+        fatigue = "+1";
+        result = "Mage fine-tunes the <em>Form</em>, causing fatigue";
+        break;
+      case 'MF':
+        fatigue = "+1";
+        result = "Mage creates a <em>Form</em> but it is not suited for the spell. Aborting the spell costs fatigue";
+        break;
+      case 'CF':
+        fatigue = "+2";
+        result = "The <em>Principle</em> is summoned into a faulty <em>Form</em> which could not be repaired. <br/><i>Optionally roll on critical spell failure table.</i>";
+        break;
+      default:
+        fatigue = "0";
+        result = `Unknown roll result ${rollResult.result}`;
+    }
+    console.debug("HM3 Automation | result", result)
+    game.hm3.macros.changeFatigue(fatigue, actor);
+    ChatMessage.create({
+      user: game.userId,
+      speaker: speaker,
+      content: result
+    }, {})
+  } else {
+    throw new Error('game not initialized yet!');
   }
-  console.debug("HM3 Automation | result", result)
-  game.hm3.macros.changeFatigue(fatigue, actor);
-  ChatMessage.create({
-    user: game.user._id,
-    speaker: speaker,
-    content: result
-  }, {})
 }
 
 /**
@@ -53,25 +57,29 @@ function onSpellRoll(actor, rollResult, rollData, item) {
  * @param {rollData} rollData ignored
  */
 function onShockRoll(actor, rollResult, rollData) {
-  console.debug("HM3 Automation | onShockRoll")
-  console.debug("HM3 Automation | actor", actor)
-  console.debug("HM3 Automation | rollResult", rollResult)
-  if (!rollResult.isSuccess) {
+  if (game instanceof Game) {
+    console.debug("HM3 Automation | onShockRoll")
     console.debug("HM3 Automation | actor", actor)
-    if (!actor.effects.find(m => m.data.label === "Dead")) {
-      const activeEffectData = {
-        label: "Dead",
-        icon: "icons/svg/skull.svg",
+    console.debug("HM3 Automation | rollResult", rollResult)
+    if (!rollResult.isSuccess) {
+      console.debug("HM3 Automation | actor", actor)
+      if (!actor.effects.find(m => m.data.label === "Dead")) {
+        const activeEffectData = {
+          label: "Dead",
+          icon: "icons/svg/skull.svg",
+        }
+        const token = game.combat?.turns.find(c => c.actor == actor)?.token;
+        const promise = ActiveEffect.create(activeEffectData, { parent: actor });
+        promise.then(result => {
+          result?.setFlag("core", "statusId", "dead");
+          result?.setFlag("core", "overlay", true);
+          token?.combatant?.update({ defeated: true });
+        }
+        )
       }
-      const token = game.combat?.turns.find(c => c.actor == actor)?.token;
-      const promise = ActiveEffect.create(activeEffectData, { parent: actor });
-      promise.then(result => {
-        result.setFlag("core", "statusId", "dead");
-        result.setFlag("core", "overlay", true);
-        token?.combatant.update({ defeated: true });
-      }
-      )
     }
+  } else {
+    throw new Error('game not initialized yet!');
   }
 }
 
@@ -82,34 +90,38 @@ function onShockRoll(actor, rollResult, rollData) {
  * @param {rollData} rollData ignored
  */
 function onFumbleRoll(actor, rollResult, rollData) {
-  console.debug("HM3 Automation | onFumbleRoll")
-  console.debug("HM3 Automation | actor", actor)
-  console.debug("HM3 Automation | rollResult", rollResult)
-  if (!rollResult.isSuccess) {
-    const ae = actor.effects.find(m => m.data.label === "Fumble");
-    if (ae) {
-      const promise = ae.update({
-        disabled: false,
-        duration: {
-          startTurn: game.combat.data.turn,
-          startRound: game.combat.data.round,
-          rounds: 1
+  if (game instanceof Game) {
+    console.debug("HM3 Automation | onFumbleRoll")
+    console.debug("HM3 Automation | actor", actor)
+    console.debug("HM3 Automation | rollResult", rollResult)
+    if (!rollResult.isSuccess) {
+      const ae = actor.effects.find(m => m.data.label === "Fumble");
+      if (ae) {
+        const promise = ae.update({
+          disabled: false,
+          duration: {
+            startTurn: game.combat?.data.turn,
+            startRound: game.combat?.data.round,
+            rounds: 1
+          }
+        });
+        promise.then()
+      } else {
+        const activeEffectData = {
+          label: "Fumble",
+          icon: "modules/hm3-automation/icons/drop-weapon.svg",
+          duration: {
+            startTurn: game.combat?.data.turn,
+            startRound: game.combat?.data.round,
+            rounds: 1
+          },
+          changes: []
         }
-      });
-      promise.then()
-    } else {
-      const activeEffectData = {
-        label: "Fumble",
-        icon: "modules/hm3-automation/icons/drop-weapon.svg",
-        duration: {
-          startTurn: game.combat.data.turn,
-          startRound: game.combat.data.round,
-          rounds: 1
-        },
-        changes: []
-      }
-      const promise = ActiveEffect.create(activeEffectData, { parent: actor }).then();
-    };
+        const promise = ActiveEffect.create(activeEffectData, { parent: actor }).then();
+      };
+    }
+  } else {
+    throw new Error('game not initialized yet!');
   }
 }
 
@@ -119,35 +131,39 @@ function onFumbleRoll(actor, rollResult, rollData) {
  * @param {rollResult} rollResult The outcome of the stumble roll
  * @param {rollData} rollData ignored
  */
- function onStumbleRoll(actor, rollResult, rollData) {
-  console.debug("HM3 Automation | onStumbleRoll")
-  console.debug("HM3 Automation | actor", actor)
-  console.debug("HM3 Automation | rollResult", rollResult)
-  if (!rollResult.isSuccess) {
-    const ae = actor.effects.find(m => { console.log(m); return m.data?.label === "Prone" });
-    if (ae) {
-      const promise = ae.update({
-        disabled: false,
-        duration: {
-          startTurn: game.combat.data.turn,
-          startRound: game.combat.data.round,
-          rounds: 1
+function onStumbleRoll(actor, rollResult, rollData) {
+  if (game instanceof Game) {
+    console.debug("HM3 Automation | onStumbleRoll")
+    console.debug("HM3 Automation | actor", actor)
+    console.debug("HM3 Automation | rollResult", rollResult)
+    if (!rollResult.isSuccess) {
+      const ae = actor.effects.find(m => { console.log(m); return m.data?.label === "Prone" });
+      if (ae) {
+        const promise = ae.update({
+          disabled: false,
+          duration: {
+            startTurn: game.combat?.data.turn,
+            startRound: game.combat?.data.round,
+            rounds: 1
+          }
+        }).then();
+      } else {
+        const activeEffectData = {
+          label: "Prone",
+          icon: "icons/svg/falling.svg",
+          duration: {
+            startTurn: game.combat?.data.turn,
+            startRound: game.combat?.data.round,
+            rounds: 1
+          }
         }
-      }).then();
-    } else {
-      const activeEffectData = {
-        label: "Prone",
-        icon: "icons/svg/falling.svg",
-        duration: {
-          startTurn: game.combat.data.turn,
-          startRound: game.combat.data.round,
-          rounds: 1
-        }
-      }
-      const promise = ActiveEffect.create(activeEffectData, { parent: actor })
-      promise.then(result => { result.setFlag("core", "statusId", "prone"); });
+        const promise = ActiveEffect.create(activeEffectData, { parent: actor })
+        promise.then(result => { result?.setFlag("core", "statusId", "prone"); });
 
+      }
     }
+  } else {
+    throw new Error('game not initialized yet!');
   }
 }
 
