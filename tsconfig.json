@@ -1,12 +1,9 @@
 {
+  "include": ["src/**/*"],
   "compilerOptions": {
     "types": ["@league-of-foundry-developers/foundry-vtt-types"],
     "moduleResolution": "node",
     "strictNullChecks": true,
+    "outDir": "scripts",
   },
-  "files": [
-    "init.ts",
-    "global.d.ts",
-    "types.d.ts"
-  ]
 }
