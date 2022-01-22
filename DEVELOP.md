@@ -6,7 +6,7 @@ If you follow the gitflow process, then it will create release zip files automat
 You want to start working on an issue and test in your local instance.
 ````
 git flow feature start <name>
-git flow feature publish (optional)
+git flow feature publish <name> (optional)
 git flow feature finish <name> 
 ````
 This will merge into develop branch. Publish those changes with:
@@ -24,7 +24,7 @@ suffix, the release process will take care of that for you.
 ```
 git add module.json
 git commit -m 'Prepare for release <version>'
-git flow release publish
+git flow release publish <version>
 ```
 This will create a beta release that testers can install.
 
@@ -39,3 +39,4 @@ git push --tags
 ````
 This will update the ```latest``` tag and ```Latest``` release as well as
 tagging your release with the version number.
+
