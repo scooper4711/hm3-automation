@@ -1,4 +1,7 @@
 # HârnMaster 3 Automation for Foundry VTT
+[![Version (latest)](https://img.shields.io/github/v/release/scooper4711/hm3-automation)](https://github.com/scooper4711/hm3-automation/releases/latest)
+[![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fhm3-automation&colorB=4aa94a)](https://forge-vtt.com/bazaar#package=hm3-automation)
+[![GitHub downloads (latest)](https://img.shields.io/badge/dynamic/json?label=Downloads@latest&query=assets[?(@.name.includes('zip'))].download_count&url=https://api.github.com/repos/scooper4711/hm3-automation/releases/latest&color=green)](https://github.com/scooper4711/hm3-automation/releases/latest)
 
 With this module installed, there is no need to remember to mark
 actors as defeated when they fail their shock rolls. This module
