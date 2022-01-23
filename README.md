@@ -85,7 +85,7 @@ added to the actor casting the spell.
 |CS|No fatigue |
 |MS|+1 fatigue |
 |MF|+1 fatigue |
-|CF|+1 fatigue |
+|CF|+2 fatigue |
 
 # Future plans
 
