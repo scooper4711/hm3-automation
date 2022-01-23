@@ -41,13 +41,13 @@ Use FoundryVTT Add-on Module page to install this manifest:
 
 If an actor fails a shock roll, it will automatically be
 marked as 'defeated' and a Skull icon will appear over its
-token.
+token. The actor is also marked as prone.
 
 If there is active combat, then the actor will be highlighted
 in red in the combat tracker and should appear as dead there.
 
-The actor also gets an Active Effect of 'Dead' added to its
-effects. This Active Effect remains until removed.
+The actor also gets two Active Effects: 'Dead' and 'Prone' added to its
+effects. These Active Effect remain until removed.
 
 ## Stumble Failure Automation
 
@@ -57,13 +57,9 @@ If an actor fails a stumble roll, it will automatically be
 marked as 'prone' and get an Active Effect of Prone and its
 associated icon.
 
-This Active Effect will automatically be disabled *after* the Actor's
-next turn. The intent is that the icon serves as a reminder to the 
-player that they must spend one round getting back up from prone.
-
-The Active Effect will remain in the Actor's Effects tab. You
-may delete it if you want. If the effect isn't there next time
-the actor stumbles, a new effect will be created.
+This Active Effect will remain until removed. The intent is that 
+the icon serves as a reminder to the player that they must 
+spend one action to get up.
 
 ## Fumble Failure Automation
 
