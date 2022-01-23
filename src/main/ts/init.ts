@@ -1,6 +1,6 @@
 import { ActiveEffectDataConstructorData, CoreFlags } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData"
 import { EffectChangeDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData"
-
+import { HarnMasterActor } from "../../../hm3/actor/actor"
 /**
  * Based on the rollResult, increase fatigue.
  * @param {HarnMasterActor} actor The actor doing the spell casting
@@ -8,7 +8,7 @@ import { EffectChangeDataConstructorData } from "@league-of-foundry-developers/f
  * @param {rollData} rollData The target for the roll
  * @param {HarnMasterItem} item The spell being cast
  */
-function onSpellRoll(actor, rollResult, rollData, item) {
+function onSpellRoll(actor: HarnMasterActor, rollResult, rollData, item) {
   if (game instanceof Game) {
     console.debug("HM3 Automation | onSpellRoll")
     console.debug("HM3 Automation | actor", actor)
@@ -58,33 +58,18 @@ function onSpellRoll(actor, rollResult, rollData, item) {
  * @param {rollResult} rollResult The outcome of the roll
  * @param {rollData} rollData ignored
  */
-function onShockRoll(actor, rollResult, rollData) {
-  if (game instanceof Game) {
-    console.debug("HM3 Automation | onShockRoll")
-    console.debug("HM3 Automation | actor", actor)
-    console.debug("HM3 Automation | rollResult", rollResult)
-    if (!rollResult.isSuccess) {
-      if (!actor.effects.find(m => m.data.label === "Dead")) {
-        const changeData: EffectChangeDataConstructorData[] = [
-        ];
-        const activeEffectData: ActiveEffectDataConstructorData = {
-          label: "Dead",
-          icon: "icons/svg/skull.svg",
-          changes: changeData,
-          flags: {core: {statusId: "dead", overlay: true}}
-        }
-        const token = game.combat?.turns.find(c => c.actor == actor)?.token;
-        const promise = ActiveEffect.create(activeEffectData, { parent: actor });
-        promise.then(result => {
-          token?.combatant?.update({ defeated: true });
-        }
-        )
-      }
-    }
-  } else {
-    throw new Error('game not initialized yet!');
+function onShockRoll(actor: HarnMasterActor, rollResult, rollData) {
+  console.debug("HM3 Automation | onShockRoll")
+  console.debug("HM3 Automation | actor", actor)
+  console.debug("HM3 Automation | rollResult", rollResult)
+  if (!rollResult.isSuccess) {
+    const token = actor.token;
+    makeCombatEffect(actor, "Prone", "icons/svg/falling.svg", false, false)
+      ?.then(_value => {makeCombatEffect(actor, "Dead", "icons/svg/skull.svg", true, false)})
+      ?.then(_value => {token?.combatant?.update({ defeated: true })})
   }
 }
+
 
 /**
  * If the actor fails the fumble roll, add an ActiveEffect to remind players.
@@ -92,42 +77,12 @@ function onShockRoll(actor, rollResult, rollData) {
  * @param {rollResult} rollResult The outcome of the fumble roll
  * @param {rollData} rollData ignored
  */
-function onFumbleRoll(actor, rollResult, rollData) {
-  if (game instanceof Game) {
-    console.debug("HM3 Automation | onFumbleRoll")
-    console.debug("HM3 Automation | actor", actor)
-    console.debug("HM3 Automation | rollResult", rollResult)
-    if (!rollResult.isSuccess) {
-      const ae: ActiveEffect = actor.effects.find(m => m.data.label === "Fumble");
-      if (ae) {
-        const promise = ae.update({
-          disabled: false,
-          duration: {
-            startTurn: game.combat?.data.turn,
-            startRound: game.combat?.data.round,
-            rounds: 1
-          }
-        });
-        promise.then()
-      } else {
-        const changeData: EffectChangeDataConstructorData[] = [
-        ];
-        const activeEffectData: ActiveEffectDataConstructorData = {
-          label: "Fumble",
-          icon: "modules/hm3-automation/icons/drop-weapon.svg",
-          flags: {core: {statusId: "fumble", overlay: false}},
-          changes: changeData,
-          duration: {
-            startTurn: game.combat?.data.turn,
-            startRound: game.combat?.data.round,
-            rounds: 1
-          }
-        }
-        const promise = ActiveEffect.create(activeEffectData, { parent: actor }).then();
-      };
-    }
-  } else {
-    throw new Error('game not initialized yet!');
+function onFumbleRoll(actor: HarnMasterActor, rollResult, rollData) {
+  console.debug("HM3 Automation | onFumbleRoll")
+  console.debug("HM3 Automation | actor", actor)
+  console.debug("HM3 Automation | rollResult", rollResult)
+  if (!rollResult.isSuccess) {
+    makeCombatEffect(actor, "Fumble", "modules/hm3-automation/icons/drop-weapon.svg", false, true)?.then()
   }
 }
 
@@ -137,59 +92,58 @@ function onFumbleRoll(actor, rollResult, rollData) {
  * @param {rollResult} rollResult The outcome of the stumble roll
  * @param {rollData} rollData ignored
  */
-function onStumbleRoll(actor, rollResult, rollData) {
-  if (game instanceof Game) {
-    console.debug("HM3 Automation | onStumbleRoll")
-    console.debug("HM3 Automation | actor", actor)
-    console.debug("HM3 Automation | rollResult", rollResult)
-    if (!rollResult.isSuccess) {
-      const ae: ActiveEffect = actor.effects.find(m => { return m.data?.label === "Prone" });
-      if (ae) {
-        const promise: Promise<ActiveEffect> = ae.update({
-          disabled: false,
-          duration: {
-            startTurn: game.combat?.data.turn,
-            startRound: game.combat?.data.round,
-            rounds: 1
-          }
-        }).then();
-      } else {
-        const changeData: EffectChangeDataConstructorData[] = [
-        ];
-        const activeEffectData: ActiveEffectDataConstructorData = {
-          label: "Prone",
-          icon: "icons/svg/falling.svg",
-          changes: changeData,
-          flags: {core: {statusId: "prone", overlay: false}},
-          duration: {
-            startTurn: game.combat?.data.turn,
-            startRound: game.combat?.data.round,
-            rounds: 1
-          }
-        }
-        const promise = ActiveEffect.create(activeEffectData, { parent: actor })
-        promise.then();
-
-      }
-    }
-  } else {
-    throw new Error('game not initialized yet!');
+function onStumbleRoll(actor: HarnMasterActor, rollResult, rollData) {
+  console.debug("HM3 Automation | onStumbleRoll")
+  console.debug("HM3 Automation | actor", actor)
+  console.debug("HM3 Automation | rollResult", rollResult)
+  if (!rollResult.isSuccess) {
+    makeCombatEffect(actor, "Prone", "icons/svg/falling.svg", false, false)?.then()
   }
 }
 
 
 Hooks.on("ready", () => {
-  console.log("HM3 Automation | Initializing spell fatigue");
+  console.log("HM3 Automation | Registering callback for spell fatigue");
   Hooks.on("hm3.onSpellRoll", onSpellRoll);
-  console.log("HM3 Automation | Initializing shock roll");
+  console.log("HM3 Automation | Registering callback for shock roll");
   Hooks.on("hm3.onShockRoll", onShockRoll);
-  console.log("HM3 Automation | Initializing fumble roll");
+  console.log("HM3 Automation | Registering callback for fumble roll");
   Hooks.on("hm3.onFumbleRoll", onFumbleRoll);
-  console.log("HM3 Automation | Initializing stumble roll");
+  console.log("HM3 Automation | Registering callback for stumble roll");
   Hooks.on("hm3.onStumbleRoll", onStumbleRoll);
   CONFIG.statusEffects = CONFIG.statusEffects.concat(
     [
-        { "id": "fumble", "label": "Fumble", "icon": "modules/hm3-automation/icons/drop-weapon.svg" }
+      { "id": "fumble", "label": "Fumble", "icon": "modules/hm3-automation/icons/drop-weapon.svg" }
     ]
   )
 });
+
+function makeCombatEffect(actor: HarnMasterActor, label: string, icon: string, overlay: boolean, autoclear: boolean):(Promise<(StoredDocument<ActiveEffect>|undefined)>|undefined) {
+  if (game instanceof Game) {
+    const ae: ActiveEffect | undefined = actor.effects.find(m => { return m.data?.label === label })
+    const duration = autoclear ? {
+      startTurn: game.combat?.data.turn,
+      startRound: game.combat?.data.round,
+      rounds: 1
+    } : null
+    if (ae) {
+      const promise: Promise<ActiveEffect> = ae.update({
+        disabled: false,
+        duration: duration
+      }).then()
+    } else {
+      const changeData: EffectChangeDataConstructorData[] = []
+      const activeEffectData: ActiveEffectDataConstructorData = {
+        label: label,
+        icon: icon,
+        changes: changeData,
+        flags: { core: { statusId: label.toLocaleLowerCase(), overlay: overlay } },
+        duration: duration
+      }
+      const promise = ActiveEffect.create(activeEffectData, { parent: actor })
+      return promise
+    }
+  } else {
+    throw new Error('game not initialized yet!');
+  }
+}

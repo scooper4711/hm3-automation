@@ -2,7 +2,7 @@
   "name": "hm3-automation",
   "title": "HârnMaster Automation",
   "description": "Automates Shock, Stumble, and Fumble rolls and spell fatigue management for HM3",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "bugs": "https://github.com/scooper4711/hm3-automation/issues",
   "minimumCoreVersion": "9",
   "compatibleCoreVersion": "9",
