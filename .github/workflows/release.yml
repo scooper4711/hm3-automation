@@ -19,7 +19,7 @@ jobs:
       with:
         node-version: 16
     - name: Foundry Type Install
-      run: npm install --save-dev @league-of-foundry-developers/foundry-vtt-types@0.8.9-10
+      run: npm install --save-dev @league-of-foundry-developers/foundry-vtt-types@9
     - name: tsc
       run: tsc
     - name: Create module
