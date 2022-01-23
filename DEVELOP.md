@@ -39,3 +39,4 @@ git push --tags
 ````
 This will update the ```latest``` tag and ```Latest``` release as well as
 tagging your release with the version number.
+

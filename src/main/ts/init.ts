@@ -1,3 +1,5 @@
+import { ActiveEffectDataConstructorData, CoreFlags } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData"
+import { EffectChangeDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData"
 
 /**
  * Based on the rollResult, increase fatigue.
@@ -62,17 +64,18 @@ function onShockRoll(actor, rollResult, rollData) {
     console.debug("HM3 Automation | actor", actor)
     console.debug("HM3 Automation | rollResult", rollResult)
     if (!rollResult.isSuccess) {
-      console.debug("HM3 Automation | actor", actor)
       if (!actor.effects.find(m => m.data.label === "Dead")) {
-        const activeEffectData = {
+        const changeData: EffectChangeDataConstructorData[] = [
+        ];
+        const activeEffectData: ActiveEffectDataConstructorData = {
           label: "Dead",
           icon: "icons/svg/skull.svg",
+          changes: changeData,
+          flags: {core: {statusId: "dead", overlay: true}}
         }
         const token = game.combat?.turns.find(c => c.actor == actor)?.token;
         const promise = ActiveEffect.create(activeEffectData, { parent: actor });
         promise.then(result => {
-          result?.setFlag("core", "statusId", "dead");
-          result?.setFlag("core", "overlay", true);
           token?.combatant?.update({ defeated: true });
         }
         )
@@ -95,7 +98,7 @@ function onFumbleRoll(actor, rollResult, rollData) {
     console.debug("HM3 Automation | actor", actor)
     console.debug("HM3 Automation | rollResult", rollResult)
     if (!rollResult.isSuccess) {
-      const ae = actor.effects.find(m => m.data.label === "Fumble");
+      const ae: ActiveEffect = actor.effects.find(m => m.data.label === "Fumble");
       if (ae) {
         const promise = ae.update({
           disabled: false,
@@ -107,15 +110,18 @@ function onFumbleRoll(actor, rollResult, rollData) {
         });
         promise.then()
       } else {
-        const activeEffectData = {
+        const changeData: EffectChangeDataConstructorData[] = [
+        ];
+        const activeEffectData: ActiveEffectDataConstructorData = {
           label: "Fumble",
           icon: "modules/hm3-automation/icons/drop-weapon.svg",
+          flags: {core: {statusId: "fumble", overlay: false}},
+          changes: changeData,
           duration: {
             startTurn: game.combat?.data.turn,
             startRound: game.combat?.data.round,
             rounds: 1
-          },
-          changes: []
+          }
         }
         const promise = ActiveEffect.create(activeEffectData, { parent: actor }).then();
       };
@@ -137,9 +143,9 @@ function onStumbleRoll(actor, rollResult, rollData) {
     console.debug("HM3 Automation | actor", actor)
     console.debug("HM3 Automation | rollResult", rollResult)
     if (!rollResult.isSuccess) {
-      const ae = actor.effects.find(m => { console.log(m); return m.data?.label === "Prone" });
+      const ae: ActiveEffect = actor.effects.find(m => { return m.data?.label === "Prone" });
       if (ae) {
-        const promise = ae.update({
+        const promise: Promise<ActiveEffect> = ae.update({
           disabled: false,
           duration: {
             startTurn: game.combat?.data.turn,
@@ -148,9 +154,13 @@ function onStumbleRoll(actor, rollResult, rollData) {
           }
         }).then();
       } else {
-        const activeEffectData = {
+        const changeData: EffectChangeDataConstructorData[] = [
+        ];
+        const activeEffectData: ActiveEffectDataConstructorData = {
           label: "Prone",
           icon: "icons/svg/falling.svg",
+          changes: changeData,
+          flags: {core: {statusId: "prone", overlay: false}},
           duration: {
             startTurn: game.combat?.data.turn,
             startRound: game.combat?.data.round,
@@ -158,7 +168,7 @@ function onStumbleRoll(actor, rollResult, rollData) {
           }
         }
         const promise = ActiveEffect.create(activeEffectData, { parent: actor })
-        promise.then(result => { result?.setFlag("core", "statusId", "prone"); });
+        promise.then();
 
       }
     }
@@ -177,4 +187,9 @@ Hooks.on("ready", () => {
   Hooks.on("hm3.onFumbleRoll", onFumbleRoll);
   console.log("HM3 Automation | Initializing stumble roll");
   Hooks.on("hm3.onStumbleRoll", onStumbleRoll);
+  CONFIG.statusEffects = CONFIG.statusEffects.concat(
+    [
+        { "id": "fumble", "label": "Fumble", "icon": "modules/hm3-automation/icons/drop-weapon.svg" }
+    ]
+  )
 });
