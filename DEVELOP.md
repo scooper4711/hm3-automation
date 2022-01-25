@@ -1,6 +1,7 @@
 # Overview
 This workflow leverages [gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
 If you follow the gitflow process, then it will create release zip files automatically for you.
+This is based on the excellent work done by [janssen-io](https://github.com/janssen-io/foundry-github-workflow)
 
 You can create beta test versions which can be installed via a manifest download.
 Beta test versions can be updated as often as needed and your beta testers will
